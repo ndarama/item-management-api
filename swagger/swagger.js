@@ -5,8 +5,8 @@ const doc = {
         title: 'Items Management API',
         description: 'API for managing products and orders'
     },
-    host: 'localhost:3000',
-    schemes: ['http'],
+    host: 'item-management-api.onrender.com',
+    schemes: ['https'],
     definitions: {
         Product: {
             name: 'Laptop',
