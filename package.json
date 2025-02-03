@@ -1,0 +1,20 @@
+{
+  "name": "items-management-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+      "start": "node index.js",
+      "start-dev": "nodemon index.js"
+  },
+  "dependencies": {
+      "dotenv": "^16.4.7",
+      "express": "^4.21.2",
+      "mongoose": "^8.9.5",
+      "swagger-ui-express": "^4.6.2",
+      "swagger-autogen": "^2.22.0",
+      "joi": "^17.9.2"
+  },
+  "devDependencies": {
+      "nodemon": "^3.1.9"
+  }
+}
