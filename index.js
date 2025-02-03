@@ -18,6 +18,9 @@ app.use(express.json());
 // API routes
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.get('/', (req, res) => {
+    res.send('Welcome to the Items Management API!');
+});
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
