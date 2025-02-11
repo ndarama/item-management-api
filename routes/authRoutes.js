@@ -69,4 +69,19 @@ router.get('/login', (req, res) => {
     res.status(401).json({ message: 'Login failed. Please try again.' });
 });
 
+// Logout route
+router.get('/logout', (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            console.error('Logout error:', err);
+            return res.status(500).json({ message: 'Logout failed' });
+        }
+
+        req.session.destroy(() => {
+            res.json({ message: 'Logout successful' });
+        });
+    });
+});
+
+
 module.exports = router;
