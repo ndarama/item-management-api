@@ -5,7 +5,7 @@ const session = require('express-session');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger/swagger.json');
-
+const helmet = require('helmet');
 const connectDB = require('./db/connection');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -14,6 +14,10 @@ require('./passportConfig');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+app.use(helmet({
+    contentSecurityPolicy: false  // Disable CSP for easier development if needed
+}));
 
 // Connect to MongoDB
 (async () => {
@@ -28,10 +32,16 @@ const PORT = process.env.PORT || 4000;
 
 // Middleware setup
 app.use(express.json());
+
 app.use(cors({
-    origin: 'http://localhost:4000/auth/auth/github', 
-    credentials: true                 
+    origin: ['https://item-management-api.onrender.com', 'http://localhost:4000'],
+    credentials: true,   // Allow cookies and sessions
+    methods: 'GET,POST,PUT,DELETE,OPTIONS', // Allowed methods
+    allowedHeaders: 'Content-Type,Authorization'  // Allowed headers
+               
 }));
+
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'defaultsecret',
     resave: false,
