@@ -20,39 +20,28 @@ passport.use(new LocalStrategy(async (username, password, done) => {
 }));
 
 // GitHub OAuth strategy
+
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
     callbackURL: process.env.GITHUB_CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
     try {
-        let user = await User.findOne({ githubId: profile.id });
-
-        if (!user) {
-            user = new User({
-                username: profile.username,
-                email: profile.emails[0].value,
-                githubId: profile.id
-            });
-            await user.save();
-        }
-
+        console.log('GitHub profile:', profile);  // Log to verify profile data
+        // Simulate user lookup or creation
+        const user = { id: profile.id, username: profile.username };
         return done(null, user);
     } catch (error) {
+        console.error('Error during GitHub OAuth:', error);
         return done(error);
     }
 }));
 
-// Serialize and deserialize user sessions
+
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await User.findById(id);
-        done(null, user);
-    } catch (error) {
-        done(error);
-    }
+passport.deserializeUser((id, done) => {
+    done(null, { id });
 });

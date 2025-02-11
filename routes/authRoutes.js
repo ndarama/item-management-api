@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const User = require('../models/User');  // Assuming a User model is set up with username, email, and password
+const User = require('../models/User');  
 
 const router = express.Router();
 
@@ -19,35 +19,54 @@ router.post('/register', async (req, res) => {
 
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
+        console.error('Error registering user:', error);
         res.status(500).json({ message: 'Error registering user', error });
     }
 });
 
 // Local login route
-router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json({ message: 'Login successful', user: req.user });
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            console.error('Login error:', err);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Log in the user
+        req.logIn(user, (loginErr) => {
+            if (loginErr) {
+                console.error('Error during login:', loginErr);
+                return res.status(500).json({ message: 'Internal server error' });
+            }
+            res.json({ message: 'Login successful', user });
+        });
+    })(req, res, next);
 });
 
 // GitHub OAuth login route
-router.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
+router.get('/github', (req, res, next) => {
+    console.log('GitHub OAuth login request received');
+    next();
+}, passport.authenticate('github', { scope: ['user:email'] }));
 
 // GitHub OAuth callback route
-router.get('/auth/github/callback', passport.authenticate('github', {
-    failureRedirect: '/auth/login-failed'
-}), (req, res) => {
-    res.redirect('/auth/success');  // Redirect to a success page or dashboard
-});
+router.get('/github/callback',
+    passport.authenticate('github', {
+        failureRedirect: '/login',
+        session: true
+    }),
+    (req, res) => {
+        console.log('GitHub OAuth callback successful');
+        res.json({ message: 'GitHub login successful', user: req.user });
+    }
+);
 
-// Success route after login
-router.get('/auth/success', (req, res) => {
-    res.json({ message: 'GitHub login successful', user: req.user });
-});
-
-// Logout route
-router.get('/logout', (req, res) => {
-    req.logout(() => {
-        res.json({ message: 'Logged out successfully' });
-    });
+// Optional: Handle login failures
+router.get('/login', (req, res) => {
+    res.status(401).json({ message: 'Login failed. Please try again.' });
 });
 
 module.exports = router;

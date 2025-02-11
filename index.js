@@ -15,8 +15,9 @@ require('./passportConfig');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Secure the app using Helmet
 app.use(helmet({
-    contentSecurityPolicy: false  // Disable CSP for easier development if needed
+    contentSecurityPolicy: false  // Disable CSP for easier development
 }));
 
 // Connect to MongoDB
@@ -26,7 +27,7 @@ app.use(helmet({
         console.log('Connected to MongoDB');
     } catch (error) {
         console.error('MongoDB connection failed:', error.message);
-        process.exit(1);  
+        process.exit(1);
     }
 })();
 
@@ -35,28 +36,29 @@ app.use(express.json());
 
 app.use(cors({
     origin: ['https://item-management-api.onrender.com', 'http://localhost:4000'],
-    credentials: true,   // Allow cookies and sessions
-    methods: 'GET,POST,PUT,DELETE,OPTIONS', // Allowed methods
-    allowedHeaders: 'Content-Type,Authorization'  // Allowed headers
-               
+    credentials: true,
+    methods: 'GET,POST,PUT,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization'
 }));
-
+app.options('*', cors());
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'defaultsecret',
     resave: false,
     saveUninitialized: false
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Swagger API Documentation route
+// Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // API Routes
 app.get('/', (req, res) => {
     res.send('Welcome to the Item Management API!');
 });
+
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/auth', authRoutes);
