@@ -1,6 +1,6 @@
 exports.isAuthenticated = (req, res, next) => {
     if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+        return res.status(400).json({ message: 'Unauthorized. Please log in.' });
     }
     next();
 };
