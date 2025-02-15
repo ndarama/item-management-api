@@ -33,6 +33,33 @@
                 }
             }
         },
+        "/auth/register-admin": {
+        "post": {
+            "summary": "Register an Admin (Restricted)",
+            "description": "Allows an admin user to create another admin.",
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "username": { "type": "string" },
+                            "email": { "type": "string" },
+                            "password": { "type": "string" }
+                        }
+                    }
+                }
+            ],
+            "responses": {
+                "201": { "description": "Admin registered successfully" },
+                "400": { "description": "User already exists" },
+                "403": { "description": "Forbidden: Only admins can create admins" },
+                "500": { "description": "Internal server error" }
+            }
+        }
+    },
         "/auth/login": {
             "post": {
                 "summary": "Log in with username and password",

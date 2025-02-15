@@ -83,5 +83,32 @@ router.get('/logout', (req, res) => {
     });
 });
 
+// Middleware to check if user is an admin
+const isAdmin = (req, res, next) => {
+    if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Forbidden: Admins only' });
+    }
+    next();
+};
+
+// Register an Admin (Restricted)
+router.post('/register-admin', isAdmin, async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
+        
+        // Check if the user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ message: 'User already exists' });
+
+        // Create new admin user
+        const newUser = new User({ username, email, password, role: 'admin' });
+        await newUser.save();
+
+        res.status(201).json({ message: 'Admin registered successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error registering admin', error });
+    }
+});
+
 
 module.exports = router;
